@@ -102,3 +102,37 @@ def DFS():
         """
 
         session.run(instruction)
+
+
+#Page 43 : Recherche des composantes fortements connexes
+def SCC():
+    with driver.session as session :
+        instruction = """
+        MATCH (s), (t)
+        WHERE
+            s = t
+            OR (
+                EXISTS {
+                    MATCH (s)-[*1..]->(t)
+                }
+                AND
+                EXISTS {
+                    MATCH (t)-[*1..]->(s)
+                }
+            )
+
+        WITH s, collect(t) AS composante
+
+        WITH s, composante
+        ORDER BY s.id
+
+        WITH collect({
+            id: s.id,
+            membres: [x IN composante | x.id]
+        }) AS composants
+
+        RETURN composants;
+
+        """
+
+        session.run(instruction)
